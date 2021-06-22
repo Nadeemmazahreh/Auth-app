@@ -3,51 +3,42 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Jumbotron from 'react-bootstrap/Jumbotron';
 import './myFavoriteBooks.css';
 import axios from 'axios';
-import { useAuth0 } from '@auth0/auth0-react';
+import { withAuth0 } from '@auth0/auth0-react';
+import Carousel from 'react-bootstrap/Carousel'
 
 class MyFavoriteBooks extends React.Component {
 
   constructor(props) {
     super(props)
     this.state = {
-      books : '',
+      books : [],
     }
   }
 
-  getBooks = async () => {
-    const booksData = await axios.get('https://auth-server33.herokuapp.com/books', { params: { email: this.props.auth0.user.email } })
-
+  componentDidMount = async() => {
+    const booksData = await axios.get(`http://localhost:3001/books`, { params: { email: this.props.auth0.user.email } })
     this.setState({
-      books: booksData
+      books: booksData.data
     })
+    console.log('hello', this.props.auth0.user.email)
   }
 
   render() {
     return (
       <Carousel>
-        <Carousel.Item>
+        {this.state.books.map((books) => (
+          <Carousel.Item>
           <img
             className="book1"
-            src={this.state.booksData[0].image}
+            src={books.image}
             alt="First slide"
           />
           <Carousel.Caption>
-            <h3>{this.state.booksData[0].name}</h3>
-            <p>{this.state.booksData[0].description}</p>
+            <h3>{books.name}</h3>
+            <p>{books.description}</p>
           </Carousel.Caption>
         </Carousel.Item>
-        <Carousel.Item>
-          <img
-            className="book2"
-            src={this.state.booksData[1].image}
-            alt="Second slide"
-          />
-
-          <Carousel.Caption>
-            <h3>{this.state.booksData[1].name}</h3>
-            <p>{this.state.booksData[1].description}</p>
-          </Carousel.Caption>
-        </Carousel.Item>
+        ))}
       </Carousel>
     )
   }
